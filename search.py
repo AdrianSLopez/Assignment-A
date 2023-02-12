@@ -4,8 +4,6 @@ LEFT = 1
 DOWN = 2
 RIGHT = 3
 
-# https://docs.google.com/presentation/d/18_xcUMHzkcqlAaxNcA-3bX4cMFL5vo5U/edit#slide=id.p1
-
 class Node:
     def __init__(self, row, col, moveToPrevNode, prevNode):
         self.row = row
