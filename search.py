@@ -173,7 +173,7 @@ def A_Star_H2(puzzle):
     while not len(q) == 0:
         currentNode = q.pop(0)
         currentNode.visited[currentNode.row][currentNode.col] = 1
-        # print("Current Node: [" + str(currentNode.row) + "," + str(currentNode.col) + "]")
+
         if currentNode.row == 2 and currentNode.col == 2:
             final_solution.append(currentNode)
             break
@@ -181,17 +181,48 @@ def A_Star_H2(puzzle):
             next_moves = next_Move(currentNode)
 
             for move in next_moves:
-                # print("Can move to [" + str(next_moves[i].row) + "," + str(next_moves[i].col) + "]")
-                # find h for each move
-                # calculate f(n) for each move
+                move.h = h2(puzzle[move.row][move.col].strip(), move.row, move.col)
+                move.f = move.g + move.h
                 q.append(move)
 
-            # sort based on f(n)
+            sort(q)
     
     currentNode = final_solution.pop(0)
-    
+
     while(currentNode.prevNode != None):
         final_solution.insert(0, currentNode.moveToPrevNode)
         currentNode = currentNode.prevNode
 
     return final_solution
+
+def h2(number, row, col):
+    perfectState = {
+        "1": [0,0],
+        "2": [0,1],
+        "3": [0,2],
+        "4": [1,0],
+        "5": [1,1],
+        "6": [1,2],
+        "7": [2,0],
+        "8": [2,1],
+        "9": [2,2]
+    }
+
+    if(perfectState[number][0] == row and perfectState[number][1] == col):
+        return 0
+    else:
+        rowDist = abs(perfectState[number][0] - row)
+        colDist = abs(perfectState[number][1] - col)
+
+        return rowDist + colDist
+
+def sort(q):
+    for i in range(1, len(q)):
+        j = i
+        while j>0 and q[j-1].f > q[j].f:
+            temp = q[j-1]
+            q[j-1] = q[j]
+            q[j] = temp
+            j -= 1
+           
+    return q
