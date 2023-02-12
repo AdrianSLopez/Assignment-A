@@ -28,6 +28,7 @@ def BFS(puzzle):
     
     while not len(q) == 0:
         currentNode = q.pop(0)
+        visited[currentNode.row][currentNode.col] = 1
 
         if currentNode.row == 2 and currentNode.col == 2:
             final_solution.append(currentNode)
@@ -37,7 +38,6 @@ def BFS(puzzle):
 
             for move in next_moves:
                 q.append(move)
-                visited[move.row][move.col] = 1
 
     currentNode = final_solution.pop(0)
 
@@ -89,19 +89,35 @@ def next_Move(currentNode, visited):
 
 
 def DFS(puzzle):
-    """
-    Depth-First Search.
-
-    Arguments:
-    - puzzle: Node object representing initial state of the puzzle
-
-    Return:
-    final_solution: An ordered list of moves representing the final solution.
-    """
-
     final_solution = []
+    q = []
+    visited = [[0,0,0],[0,0,0],[0,0,0]]
 
-    # TODO: WRITE CODE
+    for r in range(3):
+        for c in range(3):
+            if puzzle[r][c].strip() == "0":
+                startingNode = Node(r, c, None, None)
+                q.insert(0, startingNode)
+                visited[r][c] = 1
+
+    while not len(q) == 0:
+        currentNode = q.pop(0)
+        visited[currentNode.row][currentNode.col] = 1
+
+        if currentNode.row == 2 and currentNode.col == 2:
+            final_solution.append(currentNode)
+            break
+        else:
+            next_moves = next_Move(currentNode, visited)
+
+            for i in range(len(next_moves)):
+                q.insert(i, next_moves[i])
+    
+    currentNode = final_solution.pop(0)
+    
+    while(currentNode.prevNode != None):
+        final_solution.insert(0, currentNode.moveToPrevNode)
+        currentNode = currentNode.prevNode
 
     return final_solution
 
