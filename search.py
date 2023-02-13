@@ -30,7 +30,6 @@ def BFS(puzzle):
     while not len(q) == 0:
         currentNode = q.pop(0)
         currentNode.visited[currentNode.row][currentNode.col] = 1
-        print("Current Node: [" + str(currentNode.row) + "," + str(currentNode.col) + "]")
 
         if currentNode.row == 2 and currentNode.col == 2:
             final_solution.append(currentNode)
@@ -39,7 +38,6 @@ def BFS(puzzle):
             next_moves = next_Move(currentNode)
 
             for move in next_moves:
-                print("Can move to [" + str(move.row) + "," + str(move.col) + "]")
                 q.append(move)
 
     currentNode = final_solution.pop(0)
@@ -49,56 +47,6 @@ def BFS(puzzle):
         currentNode = currentNode.prevNode
 
     return final_solution
-
-
-# Helper method: returns coordinates of next possible moves based on location and visited array
-def next_Move(currentNode):
-    possible_moves = [UP, DOWN, LEFT, RIGHT]
-    next_moves = []
-
-    if(currentNode.row==0):
-        possible_moves.remove(UP)
-    
-    if(currentNode.col==0):
-        possible_moves.remove(LEFT)
-    
-    if(currentNode.row==2):
-        possible_moves.remove(DOWN)
-
-    if(currentNode.col==2):
-        possible_moves.remove(RIGHT)
-    
-    for move in possible_moves:
-        nextNode = Node(prevNode=currentNode, g=1+currentNode.g, visited=currentNode.visited)
-
-        # Update 0's new position and move to previous Node
-        if(move == UP and currentNode.visited[currentNode.row-1][currentNode.col] == 0):
-            nextNode.moveToPrevNode = DOWN
-            nextNode.row = currentNode.row-1
-            nextNode.col = currentNode.col
-            next_moves.append(nextNode)
-            continue
-        if(move == DOWN and currentNode.visited[currentNode.row+1][currentNode.col] == 0):
-            nextNode.moveToPrevNode = UP
-            nextNode.row = currentNode.row+1
-            nextNode.col = currentNode.col
-            next_moves.append(nextNode)
-            continue
-        if(move == LEFT and currentNode.visited[currentNode.row][currentNode.col-1] == 0):
-            nextNode.moveToPrevNode = RIGHT
-            nextNode.row = currentNode.row
-            nextNode.col = currentNode.col-1
-            next_moves.append(nextNode)
-            continue
-        if(move == RIGHT and currentNode.visited[currentNode.row][currentNode.col+1] == 0):
-            nextNode.moveToPrevNode = LEFT
-            nextNode.row = currentNode.row
-            nextNode.col = currentNode.col+1
-            next_moves.append(nextNode)
-            continue       
-
-    return next_moves
- 
 
 def DFS(puzzle):
     final_solution = []
@@ -113,7 +61,6 @@ def DFS(puzzle):
     while not len(q) == 0:
         currentNode = q.pop(0)
         currentNode.visited[currentNode.row][currentNode.col] = 1
-        print("Current Node: [" + str(currentNode.row) + "," + str(currentNode.col) + "]")
         if currentNode.row == 2 and currentNode.col == 2:
             final_solution.append(currentNode)
             break
@@ -121,7 +68,6 @@ def DFS(puzzle):
             next_moves = next_Move(currentNode)
 
             for i in range(len(next_moves)):
-                print("Can move to [" + str(next_moves[i].row) + "," + str(next_moves[i].col) + "]")
                 q.insert(i, next_moves[i])
     
     currentNode = final_solution.pop(0)
@@ -154,14 +100,14 @@ def A_Star_H1(puzzle):
             next_moves = next_Move(currentNode)
 
             for move in next_moves:
-                move.puzzle = currentNode.puzzle
+                move.puzzle = [[currentNode.puzzle[0][0], currentNode.puzzle[0][1], currentNode.puzzle[0][2]], [currentNode.puzzle[1][0], currentNode.puzzle[1][1], currentNode.puzzle[1][2]], [currentNode.puzzle[2][0], currentNode.puzzle[2][1], currentNode.puzzle[2][2]]]
                 move.h = h1(move.puzzle)
                 move.f = move.g + move.h
                 updatePuzzle(currentNode, move)
                 q.append(move)
 
             sort(q)
-    
+                
     currentNode = final_solution.pop(0)
 
     while(currentNode.prevNode != None):
@@ -170,14 +116,13 @@ def A_Star_H1(puzzle):
 
     return final_solution
 
-
-# Update node's puzzle based on 0's new position
+# A_Star_H1 helper method: Update node's puzzle based on 0's new position
 def updatePuzzle(currentNode, nextNode):
     temp = nextNode.puzzle[nextNode.row][nextNode.col]
     nextNode.puzzle[nextNode.row][nextNode.col] = nextNode.puzzle[currentNode.row][currentNode.col]
     nextNode.puzzle[currentNode.row][currentNode.col] = temp
 
-# Calculate # of misplaced tiles based on puzzle's state
+# A_Star_H1 helper method: Calculate # of misplaced tiles based on puzzle's state
 def h1(puzzle):
     misplacedTiles = 0
     perfectState = {
@@ -193,7 +138,7 @@ def h1(puzzle):
     }
     for row in range(3):
         for col in range(3):
-            if(perfectState[puzzle[row][col].strip()][0] == row and perfectState[puzzle[row][col].strip()][1] == col):
+            if(perfectState[puzzle[row][col].strip()][0] != row or perfectState[puzzle[row][col].strip()][1] != col):
                 misplacedTiles+=1
 
     return misplacedTiles
@@ -258,10 +203,60 @@ def h2(number, row, col):
 def sort(q):
     for i in range(1, len(q)):
         j = i
-        while j>0 and q[j-1].f > q[j].f:
+        while j>0 and q[j-1].f >= q[j].f:
+            if(q[j-1].f == q[j].f and q[j-1].moveToPrevNode % 2 == 0 and q[j].moveToPrevNode % 2 != 0) or (q[j-1].f == q[j].f and q[j-1].moveToPrevNode == 0 and q[j].moveToPrevNode == 2)  or (q[j-1].f == q[j].f and q[j-1].moveToPrevNode == 1 and q[j].moveToPrevNode == 3):
+                break
             temp = q[j-1]
             q[j-1] = q[j]
             q[j] = temp
             j -= 1
            
     return q
+
+# Helper method: returns coordinates of next possible moves based on location and visited array
+def next_Move(currentNode):
+    possible_moves = [UP, DOWN, LEFT, RIGHT]
+    next_moves = []
+
+    if(currentNode.row==0):
+        possible_moves.remove(UP)
+    
+    if(currentNode.col==0):
+        possible_moves.remove(LEFT)
+    
+    if(currentNode.row==2):
+        possible_moves.remove(DOWN)
+
+    if(currentNode.col==2):
+        possible_moves.remove(RIGHT)
+    
+    for move in possible_moves:
+        nextNode = Node(prevNode=currentNode, g=1+currentNode.g, visited=currentNode.visited)
+
+        # Update 0's new position and move to previous Node
+        if(move == UP and currentNode.visited[currentNode.row-1][currentNode.col] == 0):
+            nextNode.moveToPrevNode = DOWN
+            nextNode.row = currentNode.row-1
+            nextNode.col = currentNode.col
+            next_moves.append(nextNode)
+            continue
+        if(move == DOWN and currentNode.visited[currentNode.row+1][currentNode.col] == 0):
+            nextNode.moveToPrevNode = UP
+            nextNode.row = currentNode.row+1
+            nextNode.col = currentNode.col
+            next_moves.append(nextNode)
+            continue
+        if(move == LEFT and currentNode.visited[currentNode.row][currentNode.col-1] == 0):
+            nextNode.moveToPrevNode = RIGHT
+            nextNode.row = currentNode.row
+            nextNode.col = currentNode.col-1
+            next_moves.append(nextNode)
+            continue
+        if(move == RIGHT and currentNode.visited[currentNode.row][currentNode.col+1] == 0):
+            nextNode.moveToPrevNode = LEFT
+            nextNode.row = currentNode.row
+            nextNode.col = currentNode.col+1
+            next_moves.append(nextNode)
+            continue       
+
+    return next_moves
