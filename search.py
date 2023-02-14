@@ -19,6 +19,9 @@ class Node:
 
 def BFS(puzzle):
     final_solution = []
+    if(puzzle[2][2].strip() == "0"):
+        return final_solution
+
     q = []
 
     for r in range(3):
@@ -50,6 +53,8 @@ def BFS(puzzle):
 
 def DFS(puzzle):
     final_solution = []
+    if(puzzle[2][2].strip() == "0"):
+        return final_solution
     q = []
 
     for r in range(3):
@@ -81,6 +86,8 @@ def DFS(puzzle):
 
 def A_Star_H1(puzzle):
     final_solution = []
+    if(puzzle[2][2].strip() == "0"):
+        return final_solution
     q = []
 
     for r in range(3):
@@ -146,6 +153,8 @@ def h1(puzzle):
 
 def A_Star_H2(puzzle):
     final_solution = []
+    if(puzzle[2][2].strip() == "0"):
+        return final_solution
     q = []
 
     for r in range(3):
