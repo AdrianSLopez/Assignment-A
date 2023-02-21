@@ -198,7 +198,7 @@ def h2(number, row, col):
         "6": [1,2],
         "7": [2,0],
         "8": [2,1],
-        "9": [2,2]
+        "0": [2,2]
     }
 
     if(perfectState[number][0] == row and perfectState[number][1] == col):
