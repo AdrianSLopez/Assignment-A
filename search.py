@@ -16,9 +16,6 @@ class Node:
         self.visited = visited
         self.puzzle = puzzle
 
-# TODO:
-    # For every algorith switch goal state to perferct puzzle (2/4)
-    # Apply BFS changes to rest of algorithms
 def BFS(puzzle):
     puzzle = clean(puzzle)
     final_solution = []
@@ -55,9 +52,6 @@ def BFS(puzzle):
 
     return final_solution
 
-# TODO: Come back to it
-    # Makes it more complicated when it comparison of puzzles is used
-    # array of 0/1's to determine a path has been through here doesn't solve ex2.txt (revisit)
 def DFS(puzzle):
     puzzle = clean(puzzle)
     final_solution = []
@@ -68,34 +62,27 @@ def DFS(puzzle):
     for r in range(3):
         for c in range(3):
             if puzzle[r][c] == "0":
-                startingNode = Node(r, c, visited=[Node(puzzle=puzzle)], puzzle=puzzle)
+                startingNode = Node(r, c, visited=[Node(puzzle=[[puzzle[0][0],puzzle[0][1],puzzle[0][2]], [puzzle[1][0],puzzle[1][1],puzzle[1][2]], [puzzle[2][0],puzzle[2][1],puzzle[2][2]]])], puzzle=puzzle)
                 q.insert(0, startingNode)
 
     while not len(q) == 0:
         currentNode = q.pop(0)
-
-        # print(str(currentNode.puzzle[0][0]) + " " + str(currentNode.puzzle[0][1]) + " " +  str(currentNode.puzzle[0][2]))
-        # print(str(currentNode.puzzle[1][0]) + " " + str(currentNode.puzzle[1][1]) + " " +  str(currentNode.puzzle[1][2]))
-        # print(str(currentNode.puzzle[2][0]) + " " + str(currentNode.puzzle[2][1]) + " " +  str(currentNode.puzzle[2][2]))
-        # print() 
         
         if matchGoalState(currentNode.puzzle):
             final_solution.append(currentNode)
             break
         else:
             next_moves = next_Move(currentNode)
-            # print(str(len(next_moves)) + " possibles moves.")
-            # print()
 
             for i in range(len(next_moves)):
                 next_moves[i].puzzle = [[currentNode.puzzle[0][0], currentNode.puzzle[0][1], currentNode.puzzle[0][2]], [currentNode.puzzle[1][0], currentNode.puzzle[1][1], currentNode.puzzle[1][2]], [currentNode.puzzle[2][0], currentNode.puzzle[2][1], currentNode.puzzle[2][2]]]
                 updatePuzzle(currentNode, next_moves[i])
-
+                
                 if(puzzleVisited(currentNode.visited, next_moves[i].puzzle)):
                     continue
                 else:
                     next_moves[i].visited = currentNode.visited
-                    next_moves[i].visited.append(Node(puzzle=next_moves[i].puzzle))
+                    next_moves[i].visited.append(Node(puzzle=[[next_moves[i].puzzle[0][0],next_moves[i].puzzle[0][1],next_moves[i].puzzle[0][2]], [next_moves[i].puzzle[1][0],next_moves[i].puzzle[1][1],next_moves[i].puzzle[1][2]], [next_moves[i].puzzle[2][0],next_moves[i].puzzle[2][1],next_moves[i].puzzle[2][2]]]))
                 q.insert(i, next_moves[i])
     
     currentNode = final_solution.pop(0)
@@ -179,10 +166,6 @@ def A_Star_H2(puzzle):
     currentNode = final_solution.pop(0)
 
     while(currentNode.prevNode != None):
-        print(str(currentNode.puzzle[0][0]) + " " + str(currentNode.puzzle[0][1]) + " " +  str(currentNode.puzzle[0][2]))
-        print(str(currentNode.puzzle[1][0]) + " " + str(currentNode.puzzle[1][1]) + " " +  str(currentNode.puzzle[1][2]))
-        print(str(currentNode.puzzle[2][0]) + " " + str(currentNode.puzzle[2][1]) + " " +  str(currentNode.puzzle[2][2]))
-        print() 
         final_solution.insert(0, currentNode.moveToPrevNode)
         currentNode = currentNode.prevNode
 
@@ -279,6 +262,9 @@ def next_Move(currentNode):
     for move in possible_moves:
         nextNode = Node(prevNode=currentNode, g=1+currentNode.g)
 
+        if currentNode.visited != None and nextNode.g > 22:
+            continue 
+
         if(move == UP):
             nextNode.moveToPrevNode = DOWN
             nextNode.row = currentNode.row-1
@@ -309,7 +295,7 @@ def next_Move(currentNode):
 
     return next_moves
 
-# Helper method : returns true or false if currentNodePuzzle mathes Goal state/puzzle
+# Helper method : returns true or false if currentNodePuzzle matches Goal state/puzzle
 def matchGoalState(currentNodePuzzle):
     goalState = [[1,2,3], [4,5,6], [7,8,0]]
 
@@ -320,7 +306,7 @@ def matchGoalState(currentNodePuzzle):
     
     return True
 
-# Helper method: Returns True if state(puzzle) does not match any states in statesVisisted (Node.visited[]: list of Nodes with only puzzles that have been visited)
+# Helper method: Returns True if puzzle does not match any puzzle in puzzles: list of Nodes with only puzzles that have been visited)
 def puzzleVisited(puzzles, puzzle):
 
     for p in puzzles:
