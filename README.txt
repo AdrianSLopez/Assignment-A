@@ -3,15 +3,17 @@ Run code:
 
 
 Which algorithm performed the fastest?
-    Using the time library, I was able to time each algorithm for each example data files 3 times.
-    For ex1.txt, Depth first search was the fastest at an average of 3.4 seconds, BFS at 5.8 secs, A*H2 at 7.44 secs, and at A*H1 at 8.32 secs
-    For ex2.txt, Depth First search was the fastest at an average of 1.52 seconds, BFS at 1.86 seconds, A*H1 at 3.19 secs, and A*H2 at 4.01 secs.
-    For ex3.txt, A*H1 was the fastest at 0.07 secs, DFS at 0.08 secs, A*H2 at 0.083 secs, and BFS at 0.09.
+    A*H1 performs the fastest. For ex1.txt, BFS and A*H1 took 0ms to find a solution. With A*H2 at 0.99ms and DFS at 9840ms.
+    For ex2.txt, A*H1 performed the fastest again clocking in at 0.49ms, BFS at 1.48ms, DFS at 21977ms, and A*H2 at 79ms.
+    For ex3.txt, A*H1 found the solution in 0ms, BFS at 1.48ms, DFS at 34067ms, and A*H2 at 39ms. Using the time library I was
+    able to store the time before and after the line of code that calls my algorithms, thus I was able to time my runs.
+
 
 Which took up the most memory?
-    A*H1 took the most memory. The node to keep trach of each state of the puzzle unlike the other algorithms also inclues a 2d array or basically a version of the puzzle based on the new path. The other solutions don't have this.
-    The puzzle in the node is basically there to keep track and help calculate how many misplaced tiles are there in the puzzle, since a move can either misplace more tiles or put some in the correct place.
+    All solutions are implemented similarly except for a few things like sorting the que for A* algorithms, add new paths to the end or start of the queue. 
+    Depth First search would be the algorithm that takes the most memory because more nodes are explored in depth first search. And for every valid and possible move 0 can take,
+    a node is created along with it's position, puzzle state, and list of Nodes that contain puzzles that have been explored. Which basically means the more valid and acceptable paths explored
+    the more Nodes are created and added to the queue. Not only does Depth First Search take up the most memory but is also the slowest in finding the solution.
 
 Which gave the best solution?
-    For data in ex2.txt and ex3.txt, my algorithms gave the same answer. Based on ex1.txt, I say Breadth-first search gave the best solution,
-    because not only did it reach the goal state, but also all numbers were in the correct position.
+    BFS, A* H1 and H2 gave the same solution for all examples. Judging by the speed I say A* H1 gave the best solution since it was the quickest in all data examples provided.

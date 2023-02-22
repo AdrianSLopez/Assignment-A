@@ -16,31 +16,32 @@ class Node:
         self.visited = visited
         self.puzzle = puzzle
 
-
 def BFS(puzzle):
+    puzzle = clean(puzzle)
     final_solution = []
-    if(puzzle[2][2].strip() == "0"):
-        return final_solution
-
     q = []
 
+    if(matchGoalState(puzzle)): return final_solution
+
+    # find location of zero, create initial node and append to q
     for r in range(3):
         for c in range(3):
-            if puzzle[r][c].strip() == "0":
-                startingNode = Node(r, c, visited=[[0,0,0],[0,0,0],[0,0,0]])
+            if puzzle[r][c] == "0":
+                startingNode = Node(r, c, puzzle=puzzle)
                 q.append(startingNode)
     
     while not len(q) == 0:
         currentNode = q.pop(0)
-        currentNode.visited[currentNode.row][currentNode.col] = 1
 
-        if currentNode.row == 2 and currentNode.col == 2:
+        if matchGoalState(currentNode.puzzle):
             final_solution.append(currentNode)
             break
         else:
             next_moves = next_Move(currentNode)
 
             for move in next_moves:
+                move.puzzle = [[currentNode.puzzle[0][0], currentNode.puzzle[0][1], currentNode.puzzle[0][2]], [currentNode.puzzle[1][0], currentNode.puzzle[1][1], currentNode.puzzle[1][2]], [currentNode.puzzle[2][0], currentNode.puzzle[2][1], currentNode.puzzle[2][2]]]
+                updatePuzzle(currentNode, move)
                 q.append(move)
 
     currentNode = final_solution.pop(0)
@@ -52,27 +53,36 @@ def BFS(puzzle):
     return final_solution
 
 def DFS(puzzle):
+    puzzle = clean(puzzle)
     final_solution = []
-    if(puzzle[2][2].strip() == "0"):
-        return final_solution
     q = []
+
+    if(matchGoalState(puzzle)): return final_solution
 
     for r in range(3):
         for c in range(3):
-            if puzzle[r][c].strip() == "0":
-                startingNode = Node(r, c, visited=[[0,0,0],[0,0,0],[0,0,0]])
+            if puzzle[r][c] == "0":
+                startingNode = Node(r, c, visited=[Node(puzzle=[[puzzle[0][0],puzzle[0][1],puzzle[0][2]], [puzzle[1][0],puzzle[1][1],puzzle[1][2]], [puzzle[2][0],puzzle[2][1],puzzle[2][2]]])], puzzle=puzzle)
                 q.insert(0, startingNode)
 
     while not len(q) == 0:
         currentNode = q.pop(0)
-        currentNode.visited[currentNode.row][currentNode.col] = 1
-        if currentNode.row == 2 and currentNode.col == 2:
+        
+        if matchGoalState(currentNode.puzzle):
             final_solution.append(currentNode)
             break
         else:
             next_moves = next_Move(currentNode)
 
             for i in range(len(next_moves)):
+                next_moves[i].puzzle = [[currentNode.puzzle[0][0], currentNode.puzzle[0][1], currentNode.puzzle[0][2]], [currentNode.puzzle[1][0], currentNode.puzzle[1][1], currentNode.puzzle[1][2]], [currentNode.puzzle[2][0], currentNode.puzzle[2][1], currentNode.puzzle[2][2]]]
+                updatePuzzle(currentNode, next_moves[i])
+                
+                if(puzzleVisited(currentNode.visited, next_moves[i].puzzle)):
+                    continue
+                else:
+                    next_moves[i].visited = currentNode.visited
+                    next_moves[i].visited.append(Node(puzzle=[[next_moves[i].puzzle[0][0],next_moves[i].puzzle[0][1],next_moves[i].puzzle[0][2]], [next_moves[i].puzzle[1][0],next_moves[i].puzzle[1][1],next_moves[i].puzzle[1][2]], [next_moves[i].puzzle[2][0],next_moves[i].puzzle[2][1],next_moves[i].puzzle[2][2]]]))
                 q.insert(i, next_moves[i])
     
     currentNode = final_solution.pop(0)
@@ -83,24 +93,23 @@ def DFS(puzzle):
 
     return final_solution
 
-
 def A_Star_H1(puzzle):
+    puzzle = clean(puzzle)
     final_solution = []
-    if(puzzle[2][2].strip() == "0"):
-        return final_solution
     q = []
+
+    if(matchGoalState(puzzle)): return final_solution
 
     for r in range(3):
         for c in range(3):
             if puzzle[r][c].strip() == "0":
-                startingNode = Node(r, c, visited=[[0,0,0],[0,0,0],[0,0,0]], puzzle=puzzle)
+                startingNode = Node(r, c, puzzle=puzzle)
                 q.insert(0, startingNode)
 
     while not len(q) == 0:
         currentNode = q.pop(0)
-        currentNode.visited[currentNode.row][currentNode.col] = 1
 
-        if currentNode.row == 2 and currentNode.col == 2:
+        if matchGoalState(currentNode.puzzle):
             final_solution.append(currentNode)
             break
         else:
@@ -108,9 +117,9 @@ def A_Star_H1(puzzle):
 
             for move in next_moves:
                 move.puzzle = [[currentNode.puzzle[0][0], currentNode.puzzle[0][1], currentNode.puzzle[0][2]], [currentNode.puzzle[1][0], currentNode.puzzle[1][1], currentNode.puzzle[1][2]], [currentNode.puzzle[2][0], currentNode.puzzle[2][1], currentNode.puzzle[2][2]]]
+                updatePuzzle(currentNode, move)
                 move.h = h1(move.puzzle)
                 move.f = move.g + move.h
-                updatePuzzle(currentNode, move)
                 q.append(move)
 
             sort(q)
@@ -123,13 +132,52 @@ def A_Star_H1(puzzle):
 
     return final_solution
 
-# A_Star_H1 helper method: Update node's puzzle based on 0's new position
+def A_Star_H2(puzzle):
+    puzzle = clean(puzzle)
+    final_solution = []
+    q = []
+
+    if(matchGoalState(puzzle)): return final_solution
+
+    for r in range(3):
+        for c in range(3):
+            if puzzle[r][c].strip() == "0":
+                startingNode = Node(r, c, puzzle=puzzle)
+                q.insert(0, startingNode)
+
+    while not len(q) == 0:
+        currentNode = q.pop(0)
+
+        if matchGoalState(currentNode.puzzle):
+            final_solution.append(currentNode)
+            break
+        else:
+            next_moves = next_Move(currentNode)
+
+            for move in next_moves:
+                move.puzzle = [[currentNode.puzzle[0][0], currentNode.puzzle[0][1], currentNode.puzzle[0][2]], [currentNode.puzzle[1][0], currentNode.puzzle[1][1], currentNode.puzzle[1][2]], [currentNode.puzzle[2][0], currentNode.puzzle[2][1], currentNode.puzzle[2][2]]]
+                updatePuzzle(currentNode, move)
+                move.h = h2(puzzle[move.row][move.col], move.row, move.col)
+                move.f = move.g + move.h
+                q.append(move)
+
+            sort(q)
+    
+    currentNode = final_solution.pop(0)
+
+    while(currentNode.prevNode != None):
+        final_solution.insert(0, currentNode.moveToPrevNode)
+        currentNode = currentNode.prevNode
+
+    return final_solution
+
+# helper method: Update nextNode's puzzle based on 0's new and previous location
 def updatePuzzle(currentNode, nextNode):
     temp = nextNode.puzzle[nextNode.row][nextNode.col]
     nextNode.puzzle[nextNode.row][nextNode.col] = nextNode.puzzle[currentNode.row][currentNode.col]
     nextNode.puzzle[currentNode.row][currentNode.col] = temp
 
-# A_Star_H1 helper method: Calculate # of misplaced tiles based on puzzle's state
+# helper method: return # of misplaced tiles based on current puzzle
 def h1(puzzle):
     misplacedTiles = 0
     perfectState = {
@@ -150,44 +198,7 @@ def h1(puzzle):
 
     return misplacedTiles
 
-
-def A_Star_H2(puzzle):
-    final_solution = []
-    if(puzzle[2][2].strip() == "0"):
-        return final_solution
-    q = []
-
-    for r in range(3):
-        for c in range(3):
-            if puzzle[r][c].strip() == "0":
-                startingNode = Node(r, c, visited=[[0,0,0],[0,0,0],[0,0,0]])
-                q.insert(0, startingNode)
-
-    while not len(q) == 0:
-        currentNode = q.pop(0)
-        currentNode.visited[currentNode.row][currentNode.col] = 1
-
-        if currentNode.row == 2 and currentNode.col == 2:
-            final_solution.append(currentNode)
-            break
-        else:
-            next_moves = next_Move(currentNode)
-
-            for move in next_moves:
-                move.h = h2(puzzle[move.row][move.col].strip(), move.row, move.col)
-                move.f = move.g + move.h
-                q.append(move)
-
-            sort(q)
-    
-    currentNode = final_solution.pop(0)
-
-    while(currentNode.prevNode != None):
-        final_solution.insert(0, currentNode.moveToPrevNode)
-        currentNode = currentNode.prevNode
-
-    return final_solution
-
+# help method: returns manhattan distance based on current tile's position and number
 def h2(number, row, col):
     perfectState = {
         "1": [0,0],
@@ -209,6 +220,7 @@ def h2(number, row, col):
 
         return rowDist + colDist
 
+# Helper method: returns sorted queue based on f
 def sort(q):
     for i in range(1, len(q)):
         j = i
@@ -222,7 +234,15 @@ def sort(q):
            
     return q
 
-# Helper method: returns coordinates of next possible moves based on location and visited array
+# Helper method: removes any '\n' from puzzle data
+def clean(puzzle):
+    for r in range(3):
+        for c in range(3):
+            puzzle[r][c] = puzzle[r][c].strip()
+
+    return puzzle
+
+# Helper method: returns list of nodes that contains possible puzzle states where 0 can move based on currentNode's puzzle/zero's position
 def next_Move(currentNode):
     possible_moves = [UP, DOWN, LEFT, RIGHT]
     next_moves = []
@@ -240,32 +260,66 @@ def next_Move(currentNode):
         possible_moves.remove(RIGHT)
     
     for move in possible_moves:
-        nextNode = Node(prevNode=currentNode, g=1+currentNode.g, visited=currentNode.visited)
+        nextNode = Node(prevNode=currentNode, g=1+currentNode.g)
 
-        # Update 0's new position and move to previous Node
-        if(move == UP and currentNode.visited[currentNode.row-1][currentNode.col] == 0):
+        if currentNode.visited != None and nextNode.g > 22:
+            continue 
+
+        if(move == UP):
             nextNode.moveToPrevNode = DOWN
             nextNode.row = currentNode.row-1
             nextNode.col = currentNode.col
-            next_moves.append(nextNode)
-            continue
-        if(move == DOWN and currentNode.visited[currentNode.row+1][currentNode.col] == 0):
+        elif(move == DOWN): 
             nextNode.moveToPrevNode = UP
             nextNode.row = currentNode.row+1
             nextNode.col = currentNode.col
-            next_moves.append(nextNode)
-            continue
-        if(move == LEFT and currentNode.visited[currentNode.row][currentNode.col-1] == 0):
+        elif(move == LEFT): 
             nextNode.moveToPrevNode = RIGHT
             nextNode.row = currentNode.row
             nextNode.col = currentNode.col-1
-            next_moves.append(nextNode)
-            continue
-        if(move == RIGHT and currentNode.visited[currentNode.row][currentNode.col+1] == 0):
+        else:
             nextNode.moveToPrevNode = LEFT
             nextNode.row = currentNode.row
             nextNode.col = currentNode.col+1
+         
+        # Appends move for initial state
+        if(currentNode.prevNode == None):
             next_moves.append(nextNode)
-            continue       
+            continue
+
+        # Prevents returning node that contains a move back to its previous node
+        if(nextNode.row == currentNode.prevNode.row and nextNode.col == currentNode.prevNode.col):
+            continue
+
+        next_moves.append(nextNode)
 
     return next_moves
+
+# Helper method : returns true or false if currentNodePuzzle matches Goal state/puzzle
+def matchGoalState(currentNodePuzzle):
+    goalState = [[1,2,3], [4,5,6], [7,8,0]]
+
+    for r in range(3):
+        for c in range(3):
+            if int(currentNodePuzzle[r][c]) != goalState[r][c]:
+                return False
+    
+    return True
+
+# Helper method: Returns True if puzzle does not match any puzzle in puzzles: list of Nodes with only puzzles that have been visited)
+def puzzleVisited(puzzles, puzzle):
+
+    for p in puzzles:
+        if(puzzlesMatch(p.puzzle, puzzle)):
+            return True
+
+    return False
+
+# Helper method: Returns True if two puzzles match False if not
+def puzzlesMatch(state1, state2):
+    for r in range(3):
+        for c in range(3):
+            if(state1[r][c] != state2[r][c]):
+                return False
+    
+    return True
